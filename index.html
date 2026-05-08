@@ -2,32 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>InMotion Sales Brain</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body {
-    height: 100%;
-    min-height: 100vh;
-    background: #0a0a0a !important;
+  html {
+    height: -webkit-fill-available;
+    background: #0a0a0a;
   }
 
   body {
     background: #0a0a0a;
     color: #f0f0f0;
     font-family: Georgia, serif;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-  }
-
-  #password-screen, #app.visible {
-    position: fixed !important;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100vw !important;
-    height: 100vh !important;
-    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
   }
 
   #password-screen {
@@ -39,20 +36,29 @@
     justify-content: center;
     z-index: 100;
     flex-direction: column;
-    gap: 0;
   }
+
+  #app {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    background: #0a0a0a;
+  }
+
+  #app.visible { display: flex; }
 
   .login-box {
     background: #0f0f0f;
     border: 1px solid #1e1e1e;
     border-radius: 16px;
     padding: 40px;
-    width: 100%;
+    width: 90%;
     max-width: 360px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
   }
 
   .login-logo {
@@ -64,113 +70,142 @@
   }
 
   .login-title { font-size: 20px; font-weight: 600; color: #f0f0f0; text-align: center; }
-  .login-subtitle { font-size: 14px; color: #777; font-family: sans-serif; text-align: center; margin-top: -16px; }
+  .login-subtitle { font-size: 14px; color: #777; font-family: sans-serif; text-align: center; margin-top: -12px; }
 
   .login-input {
-    width: 100%; background: #141414; border: 1px solid #222; border-radius: 10px;
-    color: #f0f0f0; padding: 12px 16px; font-size: 14px; font-family: sans-serif;
-    outline: none; transition: border-color 0.2s; text-align: center; letter-spacing: 0.1em;
+    width: 100%; background: #141414; border: 1px solid #222;
+    border-radius: 10px; color: #f0f0f0; padding: 14px 16px;
+    font-size: 16px; font-family: sans-serif; outline: none;
+    transition: border-color 0.2s; text-align: center; letter-spacing: 0.1em;
+    -webkit-appearance: none;
   }
   .login-input:focus { border-color: #e85d26; }
 
   .login-btn {
     width: 100%; background: linear-gradient(135deg, #e85d26, #f28b3a);
-    border: none; border-radius: 10px; color: white; padding: 12px;
-    font-size: 14px; font-family: sans-serif; font-weight: 600; cursor: pointer;
+    border: none; border-radius: 10px; color: white; padding: 14px;
+    font-size: 15px; font-family: sans-serif; font-weight: 600; cursor: pointer;
+    -webkit-appearance: none;
   }
-  .login-btn:hover { opacity: 0.9; }
-  .login-error { font-size: 14px; color: #ff6b6b; font-family: sans-serif; display: none; }
 
-  #app { display: none; flex-direction: column; }
-  #app.visible { display: flex; }
+  .login-error { font-size: 13px; color: #ff6b6b; font-family: sans-serif; display: none; }
 
   .header {
-    border-bottom: 1px solid #1e1e1e; padding: 14px 20px;
+    border-bottom: 1px solid #1e1e1e; padding: 12px 16px;
     display: flex; align-items: center; justify-content: space-between;
     background: #0d0d0d; flex-shrink: 0;
   }
+
   .header-left { display: flex; align-items: center; gap: 10px; }
+
   .logo {
-    width: 32px; height: 32px; background: linear-gradient(135deg, #e85d26, #f28b3a);
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #e85d26, #f28b3a);
     border-radius: 7px; display: flex; align-items: center; justify-content: center;
     font-size: 13px; font-weight: bold; color: white; font-family: sans-serif; flex-shrink: 0;
   }
-  .header-title { font-size: 15px; font-weight: 600; color: #f0f0f0; }
-  .header-sub { font-size: 12px; color: #777; font-family: sans-serif; margin-top: 2px; }
+
+  .header-title { font-size: 14px; font-weight: 600; color: #f0f0f0; }
+  .header-sub { font-size: 11px; color: #666; font-family: sans-serif; margin-top: 2px; }
 
   .clear-btn {
-    background: none; border: 1px solid #2a2a2a; color: #888;
+    background: none; border: 1px solid #2a2a2a; color: #777;
     padding: 5px 10px; border-radius: 5px; cursor: pointer;
-    font-size: 13px; font-family: sans-serif; display: none;
+    font-size: 12px; font-family: sans-serif; display: none;
+    -webkit-appearance: none;
   }
 
   .modes {
-    padding: 10px 20px; display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 8px 16px; display: flex; gap: 6px; flex-wrap: wrap;
     border-bottom: 1px solid #1a1a1a; background: #0d0d0d;
-    flex-shrink: 0; align-items: center;
+    flex-shrink: 0; align-items: center; overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
+
   .mode-btn {
-    padding: 6px 12px; border-radius: 16px; border: 1px solid #222;
+    padding: 6px 11px; border-radius: 16px; border: 1px solid #222;
     background: transparent; color: #888; cursor: pointer;
-    font-size: 14px; font-family: sans-serif;
-    display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+    font-size: 13px; font-family: sans-serif;
+    display: flex; align-items: center; gap: 4px;
+    white-space: nowrap; flex-shrink: 0;
+    -webkit-appearance: none;
   }
   .mode-btn.active { border-color: #e85d26; background: rgba(232,93,38,0.1); color: #e85d26; }
-  .mode-hint { margin-left: auto; font-size: 13px; color: #666; font-family: sans-serif; font-style: italic; }
+
+  .mode-hint {
+    display: none;
+  }
+
+  @media (min-width: 600px) {
+    .mode-hint {
+      display: block;
+      margin-left: auto;
+      font-size: 12px; color: #555; font-family: sans-serif; font-style: italic;
+    }
+  }
 
   .messages {
-    flex: 1; overflow-y: auto; padding: 20px;
-    display: flex; flex-direction: column; gap: 14px;
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 16px; display: flex; flex-direction: column; gap: 12px;
+    -webkit-overflow-scrolling: touch;
   }
-  .empty-state { text-align: center; margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .empty-icon { font-size: 36px; }
-  .empty-title { font-size: 16px; color: #ddd; }
-  .empty-sub { font-size: 13px; color: #666; font-family: sans-serif; }
+
+  .empty-state {
+    text-align: center; margin-top: 30px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+
+  .empty-icon { font-size: 32px; }
+  .empty-title { font-size: 15px; color: #ddd; }
+  .empty-sub { font-size: 12px; color: #555; font-family: sans-serif; }
 
   .mode-cards {
     display: flex; flex-direction: column; gap: 2px;
     background: #0f0f0f; border: 1px solid #1a1a1a;
-    border-radius: 10px; padding: 8px 12px; margin-top: 16px;
-    text-align: left; min-width: 320px;
+    border-radius: 10px; padding: 8px 12px; margin-top: 14px;
+    text-align: left; width: 100%; max-width: 380px;
   }
+
   .mode-card {
     display: flex; gap: 8px; align-items: center;
-    padding: 8px; border-radius: 7px; cursor: pointer; transition: background 0.15s;
+    padding: 8px; border-radius: 7px; cursor: pointer;
   }
-  .mode-card:hover { background: rgba(232,93,38,0.05); }
   .mode-card.active { background: rgba(232,93,38,0.08); }
-  .mode-card-icon { font-size: 15px; }
-  .mode-card-name { font-size: 14px; font-family: sans-serif; font-weight: 600; color: #ccc; }
+  .mode-card-icon { font-size: 14px; }
+  .mode-card-name { font-size: 13px; font-family: sans-serif; font-weight: 600; color: #bbb; }
   .mode-card-name.active { color: #e85d26; }
-  .mode-card-desc { font-size: 12px; font-family: sans-serif; color: #666; }
+  .mode-card-desc { font-size: 11px; font-family: sans-serif; color: #555; }
 
   .msg-row { display: flex; }
   .msg-row.user { justify-content: flex-end; }
   .msg-row.assistant { justify-content: flex-start; }
 
   .msg-bubble {
-    max-width: 82%; padding: 14px 18px;
-    font-size: 15px; line-height: 1.8; white-space: pre-wrap;
+    max-width: 88%; padding: 12px 15px;
+    font-size: 15px; line-height: 1.75; white-space: pre-wrap;
   }
+
   .msg-bubble.user {
     border-radius: 16px 16px 4px 16px;
     background: rgba(232,93,38,0.1); border: 1px solid rgba(232,93,38,0.2);
     color: #f0d4b8; font-family: sans-serif;
   }
+
   .msg-bubble.assistant {
     border-radius: 16px 16px 16px 4px;
     background: #111; border: 1px solid #1a1a1a;
     color: #e8e8e8; font-family: Georgia, serif;
   }
+
   .msg-label {
-    font-size: 11px; color: #e85d26; font-family: sans-serif;
+    font-size: 10px; color: #e85d26; font-family: sans-serif;
     letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;
     display: flex; align-items: center; gap: 4px;
   }
   .msg-dot { width: 3px; height: 3px; border-radius: 50%; background: #e85d26; }
 
   .typing {
-    display: flex; padding: 14px 18px; background: #111;
+    display: flex; padding: 12px 16px; background: #111;
     border: 1px solid #1a1a1a; border-radius: 16px 16px 16px 4px;
     gap: 4px; align-items: center;
   }
@@ -182,30 +217,39 @@
   .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
   .error-msg {
-    padding: 12px 16px; background: rgba(255,60,60,0.07);
+    padding: 10px 14px; background: rgba(255,60,60,0.07);
     border: 1px solid rgba(255,60,60,0.15); border-radius: 7px;
-    color: #ff6b6b; font-size: 14px; font-family: sans-serif;
+    color: #ff6b6b; font-size: 13px; font-family: sans-serif;
   }
 
-  .input-area { border-top: 1px solid #1a1a1a; padding: 14px 20px; background: #0d0d0d; flex-shrink: 0; }
+  .input-area {
+    border-top: 1px solid #1a1a1a;
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    background: #0d0d0d; flex-shrink: 0;
+  }
+
   .input-row { display: flex; gap: 8px; align-items: flex-end; }
 
   textarea {
     flex: 1; background: #0f0f0f; border: 1px solid #1e1e1e;
-    border-radius: 10px; color: #f0f0f0; padding: 12px 16px;
-    font-size: 15px; font-family: sans-serif; resize: none; outline: none; line-height: 1.5;
-    transition: border-color 0.2s;
+    border-radius: 10px; color: #f0f0f0; padding: 10px 14px;
+    font-size: 16px; font-family: sans-serif; resize: none; outline: none;
+    line-height: 1.5; transition: border-color 0.2s;
+    -webkit-appearance: none;
   }
   textarea:focus { border-color: #e85d26; }
-  textarea::placeholder { color: #333; }
+  textarea::placeholder { color: #2a2a2a; }
 
   .send-btn {
     width: 42px; height: 42px; border-radius: 10px; background: #111;
-    border: none; color: #333; cursor: not-allowed; font-size: 18px;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;
+    border: none; color: #2a2a2a; cursor: not-allowed; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s; -webkit-appearance: none;
   }
   .send-btn.ready { background: linear-gradient(135deg, #e85d26, #f28b3a); color: white; cursor: pointer; }
-  .input-hint { font-size: 11px; color: #222; font-family: sans-serif; margin-top: 6px; text-align: right; }
+
+  .input-hint { font-size: 10px; color: #1e1e1e; font-family: sans-serif; margin-top: 6px; text-align: right; }
 
   ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 2px; }
@@ -244,8 +288,8 @@
   </div>
 
   <div class="modes">
-    <button class="mode-btn active" data-mode="draft" onclick="setMode('draft')">✍️ Draft Response</button>
-    <button class="mode-btn" data-mode="objection" onclick="setMode('objection')">🛡️ Handle Objection</button>
+    <button class="mode-btn active" data-mode="draft" onclick="setMode('draft')">✍️ Draft</button>
+    <button class="mode-btn" data-mode="objection" onclick="setMode('objection')">🛡️ Objection</button>
     <button class="mode-btn" data-mode="stage" onclick="setMode('stage')">📍 Stage Coach</button>
     <button class="mode-btn" data-mode="free" onclick="setMode('free')">💬 Ask Anything</button>
     <span class="mode-hint" id="mode-hint">Paste a lead message - get a ready-to-send reply</span>
@@ -255,7 +299,7 @@
     <div class="empty-state" id="empty-state">
       <div class="empty-icon">🧠</div>
       <div class="empty-title" id="empty-title">Paste a lead message - get a ready-to-send reply</div>
-      <div class="empty-sub">Trained on real InMotion wins - Cmd+Enter to send</div>
+      <div class="empty-sub">Trained on real InMotion wins</div>
       <div class="mode-cards">
         <div class="mode-card active" data-mode="draft" onclick="setMode('draft')">
           <div class="mode-card-icon">✍️</div>
@@ -263,11 +307,11 @@
         </div>
         <div class="mode-card" data-mode="objection" onclick="setMode('objection')">
           <div class="mode-card-icon">🛡️</div>
-          <div><div class="mode-card-name" id="mc-objection">Handle Objection</div><div class="mode-card-desc">Describe the pushback - get exact language to use</div></div>
+          <div><div class="mode-card-name" id="mc-objection">Handle Objection</div><div class="mode-card-desc">Describe the pushback - get exact language</div></div>
         </div>
         <div class="mode-card" data-mode="stage" onclick="setMode('stage')">
           <div class="mode-card-icon">📍</div>
-          <div><div class="mode-card-name" id="mc-stage">Stage Coach</div><div class="mode-card-desc">Where are you in the call? Get coached on next steps</div></div>
+          <div><div class="mode-card-name" id="mc-stage">Stage Coach</div><div class="mode-card-desc">Where are you in the call? Get coached</div></div>
         </div>
         <div class="mode-card" data-mode="free" onclick="setMode('free')">
           <div class="mode-card-icon">💬</div>
@@ -279,7 +323,7 @@
 
   <div class="input-area">
     <div class="input-row">
-      <textarea id="user-input" rows="3" placeholder="Paste the lead's exact message..." onkeydown="handleKey(event)" oninput="updateBtn()"></textarea>
+      <textarea id="user-input" rows="2" placeholder="Paste the lead's exact message..." onkeydown="handleKey(event)" oninput="updateBtn()"></textarea>
       <button class="send-btn" id="send-btn" onclick="sendMessage()">↑</button>
     </div>
     <div class="input-hint">Cmd+Enter to send</div>
@@ -428,7 +472,7 @@ Week 2-3 AM checkpoint with data. Transfer credit: "Your $1,497 applies toward E
 
 const MODES = {
   draft: { hint: "Paste a lead message - get a ready-to-send reply", placeholder: "Paste the lead's exact message...\n\nE.g. \"Hey I saw your ad, how much does this cost?\"", prefix: "A lead sent this message. Draft the best response in Tim/Ian's voice and briefly explain your approach:\n\n" },
-  objection: { hint: "Describe the pushback - get exact language to use", placeholder: "Describe the objection and context...\n\nE.g. \"Lead said it's too expensive. 2 trucks, 3 years in business, seemed engaged during the demo.\"", prefix: "Help me handle this objection. Give me exact language to use and explain the strategy:\n\n" },
+  objection: { hint: "Describe the pushback - get exact language", placeholder: "Describe the objection and context...\n\nE.g. \"Lead said it's too expensive. 2 trucks, 3 years in business, seemed engaged during the demo.\"", prefix: "Help me handle this objection. Give me exact language to use and explain the strategy:\n\n" },
   stage: { hint: "Where are you in the call? Get coached on next steps", placeholder: "Describe where you are and the prospect's situation...\n\nE.g. \"Just finished system breakdown. 1 truck, launched 6 months ago, rated call 8/10. About to go to pricing.\"", prefix: "I'm at this point in the sales process. Coach me on what to do next and give me the exact language:\n\n" },
   free: { hint: "Open question to the sales brain", placeholder: "Ask the sales brain anything...\n\nE.g. \"How do I handle a lead who keeps rescheduling?\"", prefix: "" }
 };
@@ -462,11 +506,6 @@ function updateBtn() {
 
 function clearChat() {
   messages = [];
-  document.getElementById('messages').innerHTML = '';
-  const es = document.createElement('div');
-  es.className = 'empty-state'; es.id = 'empty-state';
-  es.innerHTML = document.querySelector('.empty-state') ? '' : '';
-  document.getElementById('clear-btn').style.display = 'none';
   location.reload();
 }
 
@@ -496,7 +535,8 @@ function showTyping() {
   const es = document.getElementById('empty-state');
   if (es) es.style.display = 'none';
   const row = document.createElement('div');
-  row.className = 'msg-row assistant'; row.id = 'typing-indicator';
+  row.className = 'msg-row assistant';
+  row.id = 'typing-indicator';
   row.innerHTML = '<div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('messages').appendChild(row);
   row.scrollIntoView({ behavior: 'smooth', block: 'end' });
