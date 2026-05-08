@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InMotion Sales Brain</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0a0a;
+    color: #f0f0f0;
+    font-family: Georgia, serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* PASSWORD SCREEN */
+  #password-screen {
+    position: fixed;
+    inset: 0;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .login-box {
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .login-logo {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #e85d26, #f28b3a);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    font-family: sans-serif;
+  }
+
+  .login-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f0f0f0;
+    text-align: center;
+  }
+
+  .login-subtitle {
+    font-size: 12px;
+    color: #444;
+    font-family: sans-serif;
+    text-align: center;
+    margin-top: -16px;
+  }
+
+  .login-input {
+    width: 100%;
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 10px;
+    color: #f0f0f0;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+
+  .login-input:focus { border-color: #e85d26; }
+
+  .login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #e85d26, #f28b3a);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    padding: 12px;
+    font-size: 14px;
+    font-family: sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .login-btn:hover { opacity: 0.9; }
+
+  .login-error {
+    font-size: 12px;
+    color: #ff6b6b;
+    font-family: sans-serif;
+    display: none;
+  }
+
+  /* MAIN APP */
+  #app { display: none; flex-direction: column; height: 100vh; }
+  #app.visible { display: flex; }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid #1e1e1e;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0d0d0d;
+    flex-shrink: 0;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 10px; }
+
+  .logo {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #e85d26, #f28b3a);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    font-family: sans-serif;
+    flex-shrink: 0;
+  }
+
+  .header-title { font-size: 14px; font-weight: 600; color: #f0f0f0; }
+  .header-sub { font-size: 10px; color: #444; font-family: sans-serif; margin-top: 2px; }
+
+  .clear-btn {
+    background: none;
+    border: 1px solid #2a2a2a;
+    color: #555;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: sans-serif;
+    display: none;
+    transition: all 0.2s;
+  }
+
+  .clear-btn:hover { border-color: #444; color: #999; }
+
+  /* Modes */
+  .modes {
+    padding: 10px 20px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #1a1a1a;
+    background: #0d0d0d;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .mode-btn {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid #222;
+    background: transparent;
+    color: #555;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active {
+    border-color: #e85d26;
+    background: rgba(232, 93, 38, 0.1);
+    color: #e85d26;
+  }
+
+  .mode-hint {
+    margin-left: auto;
+    font-size: 11px;
+    color: #2e2e2e;
+    font-family: sans-serif;
+    font-style: italic;
+  }
+
+  /* Messages */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .empty-state {
+    text-align: center;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .empty-icon { font-size: 36px; }
+  .empty-title { font-size: 15px; color: #bbb; }
+  .empty-sub { font-size: 11px; color: #333; font-family: sans-serif; }
+
+  .mode-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-top: 16px;
+    text-align: left;
+    min-width: 320px;
+  }
+
+  .mode-card {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 7px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .mode-card:hover { background: rgba(232,93,38,0.05); }
+  .mode-card.active { background: rgba(232,93,38,0.08); }
+  .mode-card-icon { font-size: 14px; }
+  .mode-card-name { font-size: 12px; font-family: sans-serif; font-weight: 600; color: #aaa; }
+  .mode-card-name.active { color: #e85d26; }
+  .mode-card-desc { font-size: 10px; font-family: sans-serif; color: #3a3a3a; }
+
+  .msg-row { display: flex; }
+  .msg-row.user { justify-content: flex-end; }
+  .msg-row.assistant { justify-content: flex-start; }
+
+  .msg-bubble {
+    max-width: 82%;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+  }
+
+  .msg-bubble.user {
+    border-radius: 16px 16px 4px 16px;
+    background: rgba(232,93,38,0.1);
+    border: 1px solid rgba(232,93,38,0.2);
+    color: #e8c4a8;
+    font-family: sans-serif;
+  }
+
+  .msg-bubble.assistant {
+    border-radius: 16px 16px 16px 4px;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    color: #ccc;
+    font-family: Georgia, serif;
+  }
+
+  .msg-label {
+    font-size: 9px;
+    color: #e85d26;
+    font-family: sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .msg-dot { width: 3px; height: 3px; border-radius: 50%; background: #e85d26; }
+
+  .typing {
+    display: flex;
+    padding: 12px 16px;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 16px 16px 16px 4px;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .typing-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #e85d26;
+    opacity: 0.6;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  .error-msg {
+    padding: 10px 14px;
+    background: rgba(255,60,60,0.07);
+    border: 1px solid rgba(255,60,60,0.15);
+    border-radius: 7px;
+    color: #ff6b6b;
+    font-size: 12px;
+    font-family: sans-serif;
+  }
+
+  /* Input */
+  .input-area {
+    border-top: 1px solid #1a1a1a;
+    padding: 14px 20px;
+    background: #0d0d0d;
+    flex-shrink: 0;
+  }
+
+  .input-row { display: flex; gap: 8px; align-items: flex-end; }
+
+  textarea {
+    flex: 1;
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    color: #f0f0f0;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: sans-serif;
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus { border-color: #e85d26; }
+  textarea::placeholder { color: #252525; }
+
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #111;
+    border: none;
+    color: #2a2a2a;
+    cursor: not-allowed;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .send-btn.ready {
+    background: linear-gradient(135deg, #e85d26, #f28b3a);
+    color: white;
+    cursor: pointer;
+  }
+
+  .input-hint {
+    font-size: 10px;
+    color: #1e1e1e;
+    font-family: sans-serif;
+    margin-top: 6px;
+    text-align: right;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 2px; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="password-screen">
+  <div class="login-box">
+    <div class="login-logo">IM</div>
+    <div>
+      <div class="login-title">InMotion Sales Brain</div>
+      <div class="login-subtitle" style="margin-top:6px;">Team access only</div>
+    </div>
+    <input type="password" class="login-input" id="pw-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()">
+    <div class="login-error" id="pw-error">Incorrect password. Try again.</div>
+    <button class="login-btn" onclick="checkPassword()">Access Sales Brain</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">IM</div>
+      <div>
+        <div class="header-title">InMotion Sales Brain</div>
+        <div class="header-sub">8 years of carpet cleaner sales data</div>
+      </div>
+    </div>
+    <button class="clear-btn" id="clear-btn" onclick="clearChat()">Clear</button>
+  </div>
+
+  <div class="modes" id="modes-bar">
+    <button class="mode-btn active" data-mode="draft" onclick="setMode('draft')">✍️ Draft Response</button>
+    <button class="mode-btn" data-mode="objection" onclick="setMode('objection')">🛡️ Handle Objection</button>
+    <button class="mode-btn" data-mode="stage" onclick="setMode('stage')">📍 Stage Coach</button>
+    <button class="mode-btn" data-mode="free" onclick="setMode('free')">💬 Ask Anything</button>
+    <span class="mode-hint" id="mode-hint">Paste a lead message - get a ready-to-send reply</span>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">🧠</div>
+      <div class="empty-title" id="empty-title">Paste a lead message - get a ready-to-send reply</div>
+      <div class="empty-sub">Trained on real InMotion wins - Cmd+Enter to send</div>
+      <div class="mode-cards">
+        <div class="mode-card active" data-mode="draft" onclick="setMode('draft')">
+          <div class="mode-card-icon">✍️</div>
+          <div><div class="mode-card-name active" id="mc-draft">Draft Response</div><div class="mode-card-desc">Paste a lead message - get a ready-to-send reply</div></div>
+        </div>
+        <div class="mode-card" data-mode="objection" onclick="setMode('objection')">
+          <div class="mode-card-icon">🛡️</div>
+          <div><div class="mode-card-name" id="mc-objection">Handle Objection</div><div class="mode-card-desc">Describe the pushback - get exact language to use</div></div>
+        </div>
+        <div class="mode-card" data-mode="stage" onclick="setMode('stage')">
+          <div class="mode-card-icon">📍</div>
+          <div><div class="mode-card-name" id="mc-stage">Stage Coach</div><div class="mode-card-desc">Where are you in the call? Get coached on next steps</div></div>
+        </div>
+        <div class="mode-card" data-mode="free" onclick="setMode('free')">
+          <div class="mode-card-icon">💬</div>
+          <div><div class="mode-card-name" id="mc-free">Ask Anything</div><div class="mode-card-desc">Open question to the sales brain</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-row">
+      <textarea id="user-input" rows="3" placeholder="Paste the lead's exact message..." onkeydown="handleKey(event)" oninput="updateBtn()"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">↑</button>
+    </div>
+    <div class="input-hint">Cmd+Enter to send</div>
+  </div>
+
+</div>
+
+<script>
+// ─── PASSWORD ───────────────────────────────────────────────
+const PASSWORD = "inmotion2026";
+
+function checkPassword() {
+  const val = document.getElementById('pw-input').value;
+  if (val === PASSWORD) {
+    document.getElementById('password-screen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    sessionStorage.setItem('sb_auth', '1');
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+// Check if already authenticated this session
+if (sessionStorage.getItem('sb_auth') === '1') {
+  document.getElementById('password-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+}
+
+// ─── SYSTEM PROMPT ──────────────────────────────────────────
+const SYSTEM_PROMPT = `You are the InMotion DMA Sales Brain - an AI sales assistant built on 8 years of real carpet cleaner sales data. You help Tim and Ian close more clients by drafting responses, handling objections, and coaching through the sales process.
+
+CRITICAL FORMATTING RULE: NEVER use em dashes in any drafted messages or responses. Use a regular hyphen (-) or rewrite the sentence. Em dashes are a dead giveaway of AI-generated text.
+
+Always sound like a carpet cleaning industry expert. Use "we" framing. Be confident, never desperate. Direct and warm - like Tim talks.
+
+When given a lead message or situation:
+1. Identify the sales stage and any objections or buying signals
+2. Draft a response in Tim/Ian's voice
+3. Briefly explain why you chose that approach
+
+When asked for coaching: be direct, give exact language, reference the playbook.
+
+COMPANY & OFFER
+InMotion DMA runs Facebook ads exclusively for carpet cleaning businesses. 8 years in the niche, 300+ clients. "You show up, you do the job, we handle the marketing side." We only work with carpet cleaners - they're building on 8 years of iteration, not being our experiment.
+
+PRICING
+ELITE (always pitch first):
+- Monthly: $2,000 today + $1,000 Day 30 + $1,000/month ongoing
+- PIF: $2,500 total (saves $500)
+- Ad spend separate: ~$50/day (~$1,500/month)
+- Total first month all-in: ~$3,500. Two-month minimum.
+
+STARTER TRIAL (downsell only - NEVER volunteer):
+- $1,500 today + $750/month from Day 30. Month-to-month.
+- Ad spend: ~$30/day (~$900/month). Total first month: ~$2,400.
+- Same full system as Elite - same setup, same management.
+
+CRITICAL: Starter is a RESCUE TOOL. Only reveal when Elite stalls at price OR prospect clearly can't support Elite. Never name proactively.
+
+CALL STRUCTURE (10 stages):
+1. Open/Rapport - set agenda
+2. Discovery - trucks, years in business, goals, marketing history
+3. System Breakdown - "the Facebook system" NO tier names yet
+4. Client Wins - Sebastian (solo/launching) + Andy (established/scaling), never mention tier
+5. System Checkpoint - soft close before pricing
+6. ROI Guarantee
+7. Ad Spend - get verbal yes to budget BEFORE service fee. Bridge math: "$50/day = ~$1,500/month"
+8. Pre-Pricing Questions
+9. 1-10 Temp Check - 9-10: go to pricing; 7-8: "What would get you to a 10?"; below 7: more work
+10. Pricing/Close - ALWAYS Elite first
+
+KEY RULES:
+- NEVER name Elite or Starter during discovery or system breakdown
+- ALWAYS present Elite first even if Starter candidate
+- After pricing: GO SILENT. Next person to speak loses.
+- Option close: "Which of those sounds best for you?"
+
+PRICING REVEAL SCRIPT:
+1. "Alright - let's talk about what it looks like to get this rolling for you." (don't ask permission)
+2. "Everything we covered today - the full Facebook build, the sales automation software, ROI tracking, review campaigns, your dedicated Slack channel - all of that is included from day one."
+3. Present Elite monthly, then PIF
+4. Pause. Let it land.
+5. "Which of those sounds best for you?"
+6. SILENCE.
+
+For Starter candidate - still show Elite first as anchor, then: "Our full Elite program runs at $2,000 today. That said - given where you are right now - I'd actually steer us toward our Starter Trial as the better starting point for you."
+
+STARTER DOWNSELL:
+Trigger: price hesitation, "need to think about it", extended silence
+Intro: "There is actually one other way we structure this for people who want to get started at a lower commitment first..."
+Present: "$1,500 to get the whole system launched, $30/day on ads instead of $50. Same system, same support, same Slack channel."
+Close: "Does that feel like a doable starting point?"
+Plant: "Most clients who see strong results in month one move into Elite to scale up."
+NEVER say "cheaper option" or "if that price is too high."
+
+STEER TO STARTER (without waiting for objection) when:
+- Owner working full-time alongside business
+- Brand new launch under 6 months
+- Only 1 truck, no employees
+- Mentioned tight budget
+- Capacity concern
+
+OBJECTION HANDLES:
+"Too expensive" - Pivot: "There is actually one other way we structure this for people who want to prove the system works before scaling up..."
+"I tried marketing before and it didn't work" - "Most carpet cleaners I talk to who tried Thumbtack or other agencies had the same experience - and usually it came down to one of two things: the leads weren't qualified, or there was no follow-up system to convert them. That's exactly what this is built to solve."
+"I need to think about it" - "Totally fair - what's the main thing you're working through?" Then: price=Starter, timing="What would need to change?", spouse="Would it be easier to get them on a quick 15-minute call?"
+"I don't have time" - "That's actually a good sign - it means you're busy, which means there's a business here worth growing. The question is whether this system runs without adding to your plate."
+"How is this different from [competitor]?" - "The main difference is we only work with carpet cleaners. Most agencies try to serve everyone - they're learning your industry while you're paying for it. We've already done 300+ carpet cleaner clients - you're building on 8 years of iteration, not being our experiment."
+"Need to talk to wife/partner" - "Of course - would it be easier to get her on a quick 15-minute call so she can hear it directly?"
+Seasonality - "Some seasonality is always expected, our system is meant to maximize lead flow during both slow and busy seasons. Yes it will get slower through winter but with our system it will be less slow than it would be without."
+"I've tried 10 systems" - "Totally fair - would you mind sharing what you tried before, so I can show you exactly how this is different on the call?"
+
+BUYING SIGNALS (stop selling, move to close):
+- 9 or 10 on temp check
+- Onboarding timeline questions
+- "I've been thinking about doing this for a while"
+- Questions about their specific market
+- "I'm ready to go live ASAP"
+- Billing/payment questions
+- "I would be ready to start with you guys"
+- Volunteering financial position
+- Competitor frustration ("Angi leads has stopped")
+- Scoping post-purchase questions
+
+VERBATIM TEMPLATES:
+Pre-call: "Just so I'm better prepared for our Zoom call - where are you guys located?"
+Day-after: "Hey [Name]. How are we feeling after our call yesterday?"
+No-show in window: "I'm not seeing you in this Zoom room - everything ok?"
+No-show post: "Hey [Name], looks like I missed you. Did you want to reschedule? You can grab a new time here: [link]"
+No-show next day: "[Name] you with me?"
+Starter close: "Great looking forward to working together! And absolutely that's what that Starter Program is all about. Let's get you scheduled for an onboarding - is [day] still the best day for that?"
+Pricing clarity: "Just to clarify, the $1,497 is separate from the $900 in ad spend."
+Speed close: "If you decide to move forward today, we can begin the build process and have everything live within 2-3 business days."
+Reactivation: "We are rolling out something new to help a few folks crush it this [season]. We wanted to run it past a few people that might be interested and thought of you. Let me know if you want info. No worries either way"
+Past client reactivation touch 1: "Hey [Name], it's Tim from InMotion. Was just thinking about some of the great clients we've worked with over the last few years - and you came to mind. Hope things have been going well! We're offering 30% off the first month for past clients who want to give us another try. Want to catch up?"
+
+GHL SWEEP PATTERNS:
+- Location opener doubles as no-show predictor
+- "Still researching" is NOT a death signal - get them back on the phone
+- Sales cycle is 0-4 days post-demo - 7+ days without movement means momentum is gone
+- Don't reactively reschedule - confirm existing slot AND offer ONE alternative
+- Billing question mid-reschedule is a buying signal
+- Post-close: validate ambition, temper with variance, frame month 1 as foundation, plant Elite upgrade
+
+STARTER UPGRADE STRATEGY:
+Window is months 1-2. At close plant: "We're starting you on the trial so you can prove the system works - most clients who see strong results in month one move into Elite to scale it up."
+Week 2-3 AM checkpoint with data. Transfer credit: "Your $1,497 applies toward Elite - you'd only owe the difference."`;
+
+// ─── MODES ──────────────────────────────────────────────────
+const MODES = {
+  draft: { label: "Draft Response", hint: "Paste a lead message - get a ready-to-send reply", placeholder: "Paste the lead's exact message...\n\nE.g. \"Hey I saw your ad, how much does this cost?\"", prefix: "A lead sent this message. Draft the best response in Tim/Ian's voice and briefly explain your approach:\n\n" },
+  objection: { label: "Handle Objection", hint: "Describe the pushback - get exact language to use", placeholder: "Describe the objection and context...\n\nE.g. \"Lead said it's too expensive. 2 trucks, 3 years in business, seemed engaged during the demo.\"", prefix: "Help me handle this objection. Give me exact language to use and explain the strategy:\n\n" },
+  stage: { label: "Stage Coach", hint: "Where are you in the call? Get coached on next steps", placeholder: "Describe where you are and the prospect's situation...\n\nE.g. \"Just finished system breakdown. 1 truck, launched 6 months ago, rated call 8/10. About to go to pricing.\"", prefix: "I'm at this point in the sales process. Coach me on what to do next and give me the exact language:\n\n" },
+  free: { label: "Ask Anything", hint: "Open question to the sales brain", placeholder: "Ask the sales brain anything...\n\nE.g. \"How do I handle a lead who keeps rescheduling?\"", prefix: "" }
+};
+
+let currentMode = 'draft';
+let messages = [];
+let loading = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  // Update mode buttons
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  // Update mode cards
+  document.querySelectorAll('.mode-card').forEach(card => {
+    const isActive = card.dataset.mode === mode;
+    card.classList.toggle('active', isActive);
+    card.querySelector('.mode-card-name').classList.toggle('active', isActive);
+  });
+  // Update hint and placeholder
+  document.getElementById('mode-hint').textContent = MODES[mode].hint;
+  document.getElementById('empty-title').textContent = MODES[mode].hint;
+  document.getElementById('user-input').placeholder = MODES[mode].placeholder;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    e.preventDefault();
+    sendMessage();
+  }
+  updateBtn();
+}
+
+function updateBtn() {
+  const hasInput = document.getElementById('user-input').value.trim().length > 0;
+  const btn = document.getElementById('send-btn');
+  btn.classList.toggle('ready', hasInput && !loading);
+}
+
+function clearChat() {
+  messages = [];
+  const container = document.getElementById('messages');
+  container.innerHTML = '';
+  container.appendChild(document.getElementById('empty-state') || createEmptyState());
+  document.getElementById('empty-state').style.display = 'flex';
+  document.getElementById('clear-btn').style.display = 'none';
+}
+
+function appendMessage(role, content) {
+  const emptyState = document.getElementById('empty-state');
+  if (emptyState) emptyState.style.display = 'none';
+  document.getElementById('clear-btn').style.display = 'block';
+
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}`;
+
+  const bubble = document.createElement('div');
+  bubble.className = `msg-bubble ${role}`;
+
+  if (role === 'assistant') {
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.innerHTML = '<div class="msg-dot"></div> Sales Brain';
+    bubble.appendChild(label);
+  }
+
+  const text = document.createElement('div');
+  text.textContent = content;
+  bubble.appendChild(text);
+  row.appendChild(bubble);
+  document.getElementById('messages').appendChild(row);
+  row.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return row;
+}
+
+function showTyping() {
+  const emptyState = document.getElementById('empty-state');
+  if (emptyState) emptyState.style.display = 'none';
+
+  const row = document.createElement('div');
+  row.className = 'msg-row assistant';
+  row.id = 'typing-indicator';
+  row.innerHTML = '<div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  document.getElementById('messages').appendChild(row);
+  row.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text || loading) return;
+
+  loading = true;
+  updateBtn();
+
+  const fullContent = MODES[currentMode].prefix + text;
+  messages.push({ role: 'user', content: fullContent });
+  appendMessage('user', text);
+  input.value = '';
+
+  showTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: messages
+      })
+    });
+
+    const data = await response.json();
+    hideTyping();
+
+    if (data.content?.[0]?.text) {
+      const reply = data.content[0].text;
+      messages.push({ role: 'assistant', content: reply });
+      appendMessage('assistant', reply);
+    } else {
+      showError('No response received. Please try again.');
+    }
+  } catch (err) {
+    hideTyping();
+    showError('Connection error. Please try again.');
+  }
+
+  loading = false;
+  updateBtn();
+}
+
+function showError(msg) {
+  const el = document.createElement('div');
+  el.className = 'error-msg';
+  el.textContent = msg;
+  document.getElementById('messages').appendChild(el);
+}
+</script>
+</body>
+</html>
